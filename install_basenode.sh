@@ -24,6 +24,30 @@ installDocker(){
 
 }
 
+# Function to replace the environment in the YAML file
+replace_environment() {
+    # Ask the user to select the environment
+    echo "Please select the environment:"
+    echo "1. Goerli"
+    echo "2. Mainnet"
+    read -p "Enter your choice (1 or 2): " choice
+
+    # Validate user input and set the appropriate environment file
+    if [ "$choice" == "1" ]; then
+        env_file=".env.goerli"
+    elif [ "$choice" == "2" ]; then
+        env_file=".env.mainnet"
+    else
+        echo "Invalid choice. Exiting."
+        exit 1
+    fi
+
+    # Replace the environment files in the YAML file
+    sed -i "s/#\s*-\s*\($env_file\)/- \1/" your_yaml_file.yml
+
+    echo "Environment set to $env_file."
+}
+
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg lsb-release git -y
 
@@ -55,6 +79,9 @@ git clone https://github.com/base-org/node.git
 
 echo "Building node binary..."
 cd node
+
+# Call the function to replace the environment
+replace_environment
 
 sudo systemctl enable docker
 sudo systemctl start docker
